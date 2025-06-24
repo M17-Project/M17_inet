@@ -12,7 +12,7 @@ leading to the use of hotspots (tiny simplex RF bridges).
 
 ## M17 Standard IP Packets
 
-In all cases, data in these packets are big endian, consistent with other IP protocols. They should NOT contain added null bytes between data members sometimes used to make individual members start on a word boundary.
+In all cases, data in these packets are big endian, consistent with other IP protocols. Packet components are not padded to any specific word size and are arranged sequentially.
 
 ### Stream Mode Packets
 
@@ -62,8 +62,6 @@ A Superframe would take 7 packets, one header and six data, totaling 192 bytes.
 
 ### Packet Mode IP Packet
 
-UDP port 17007 is recommended, but not required.
-
 | Field          | Size     | Description              |
 |----------------|----------|--------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313750 (“M17P”)
@@ -79,23 +77,22 @@ LSF CRC and the Payload CRC.
 
 Relaying packets over an IP network is the preferred method of connecting M17 users together. This provide a one-to-many connection where one transmitter is sending data to many other receivers. It is possible to build relay stations that can handle either Stream or Packet Mode data, or both. These relay appliances can have a number of different channels and they can also be interlinked so that very large groups of hams can share information.
 
-Existing relay systems, sometimes called “reflectors”, use a few different types of control packets which are used to connect and disconnect and do other fuctions. These control packets are identified by their magic:
+Existing relay systems, also called “reflectors”, use a few different types of control packets which are used to connect and disconnect and do other functions. These control packets are identified by their magic:
 
-* CONN - Connect to a reflector
-* ACKN - acknowledge connection
-* NACK - deny connection
-* PING - keepalive for the connection from the reflector to the client
-* PONG - keepalive response from the client to the reflector
-* DISC - Disconnect (client->reflector or reflector->client)
+* `CONN` - Connect to a reflector
+* `ACKN` - acknowledge connection
+* `NACK` - deny connection
+* `PING` - keepalive for the connection from the reflector to the client
+* `PONG` - keepalive response from the client to the reflector
+* `DISC` - Disconnect (client->reflector or reflector->client)
 
 These control packets are described below.
 
 ### CONN
-6-byte ‘From’ callsign including module in last character (e.g. “A1BCD D”) encoded
 | Bytes | Purpose
 |-------|----------------------
 | 0..3  | Magic - ASCII “CONN”
-| 4..9  | as per Address Encoding
+| 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 | 10    | Module to connect to - single ASCII byte A-Z
 
 A client sends this to a reflector to initiate a connection. The reflector replies with ACKN on
@@ -115,16 +112,16 @@ successful linking, or NACK on failure.
 | Bytes | Purpose
 |-------|----------------------
 | 0..3  | Magic - ASCII “PING”
-| 4..9  | 6-byte ‘From’ callsign including module in last character (e.g. “A1BCD D”) encoded as per Address Encoding
+| 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 
 ### PONG
 | Bytes | Purpose
 |-------|----------------------
 | 0..3  | Magic - ASCII “PONG”
-| 4..9  | 6-byte ‘From’ callsign including module in last character (e.g. “A1BCD D”) encoded as per Address Encoding
+| 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 
 ### DISC
 | Bytes | Purpose
 |-------|----------------------
 | 0..3  | Magic - ASCII “DISC”
-| 4..9  | 6-byte ‘From’ callsign including module in last character (e.g. “A1BCD D”) encoded as per Address Encoding
+| 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
