@@ -10,63 +10,34 @@ M17 is designed with this use in mind, and has native IP framing to support it.
 In competing radio protocols, a repeater or some other RF to IP bridge is required for linking,
 leading to the use of hotspots (tiny simplex RF bridges).
 
-## M17 Standard IP Packets
+## M17 Data Packets
+
+All M17 Data Packets have a 4 character MAGIC field beginning with the characters `M17`. For forward compatibility, reflector implementers may choose to forward all packets with MAGIC beginning with those three characters. Clients should use the MAGIC value to recognize packets they understand and ignore those don't. This allows implementors to experiment with new packet types. For now there is no mechanism to avoid collisions in new MAGIC values. Therefore, implementors should announce to the community their intent to experiment with a new packet type/MAGIC value. If the experiment is successful, they should request a change to this specification to standardize the new packet type.
 
 In all cases, data in these packets are big endian, consistent with other IP protocols. Packet components are not padded to any specific word size and are arranged sequentially.
 
+Section references in the packet descriptions in this section refer to [M17 Part I - Air interface](https://spec.m17project.org/).
+
 ### Stream Mode Packets
 
-Stream Mode may be packetized using two different methods.
-
-#### Single Packet Method 
-
-The first method combines the LSF with the payload to produce an all-
-in-one 54 byte packet. Within a stream, the LSF data will be identical within superframes. This
-would allow late joiners to open a packet stream upon the receipt of any packet. A Superframe
-would take 6 packets for a total of 326 bytes.
+The stream mode encoding combines the LSF with the payload to produce an all-in-one 54 byte packet. Within a stream, the LSF data will be identical within superframes. This allows late joiners to open a packet stream upon the receipt of any packet. A Superframe takes 6 packets for a total of 326 bytes.
 
 | Field          | Size     | Description              |
 |----------------|----------|--------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313720 (“M17 ”)
 | StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
-| LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in [M17 Part I - Air interface](https://spec.m17project.org/).
+| LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in section 2.5.1
 | FN             | 16 bits  | Frame number exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
-| Payload        | 16 bytes | Payload (exactly as would be transmitted in an RF stream frame)
-| CRC16          | 2 bytes  | CRC for the entire packet, as defined in Section 2.5.4
-
-
-#### Two Packets Method 
-
-The second method uses two packets, a “header” packet for the LSD and a “data” packet for the payload. This method uses seven packet to send a superframe. This method is more efficient than the Single Packet Method. Late joiners can open a packet stream when they have received a header packet. Both types of packets would have the same SID within a transmission.
-
-The first 36 byte header packet contains the LSD and SID and would be sent after the LSF RF Frame is received and when ever the LICH channel successfully produces an LSF.
-
-| Field          | Size     | Description              |
-|----------------|----------|--------------------------|
-| MAGIC          | 4 bytes  | Magic bytes 0x4d313748 (“M17H”)
-| StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
-| LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in [M17 Part I - Air interface](https://spec.m17project.org/)
-| CRC16          | 2 bytes  | CRC for the entire packet, as defined in [M17 Part I - Air interface](https://spec.m17project.org/)
-
-The second 26 byte data packet contains the SID, FN and Payload.
-
-| Field          | Size     | Description              |
-|----------------|----------|--------------------------|
-| MAGIC          | 4 bytes  | Magic bytes 0x4d313744 (“M17D”)
-| StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
-| FN             | 16 bits  | Frame number exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
-| Payload        | 16 bytes | Payload (exactly as would be transmitted in an RF stream frame)
-| CRC16          | 2 bytes  | CRC for the entire packet, as defined in [M17 Part I - Air interface](https://spec.m17project.org/)
-
-A Superframe would take 7 packets, one header and six data, totaling 192 bytes.
+| Payload        | 16 bytes | Payload (exactly as would be transmitted in an RF stream frame) as defined in section 2.8
+| CRC16          | 2 bytes  | CRC for the entire packet, as defined in section 2.5.4
 
 ### Packet Mode IP Packet
 
 | Field          | Size     | Description              |
 |----------------|----------|--------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313750 (“M17P”)
-| LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in [M17 Part I - Air interface](https://spec.m17project.org/)
-| Payload        | variable | This includes a type specifer, the user data, and a CRC. 
+| LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in section 2.5.2
+| Payload        | variable | The payload includes a type specifer, the user data, and a CRC (exactly as would be transmitted in an RF packet frame) as defined in section 2.9
 
 The Payload CRC is computed from the type specifer and the user data. The size of a payload
 must be at least 4, but no more than 825 bytes. Payload includes a one (to four) byte type
