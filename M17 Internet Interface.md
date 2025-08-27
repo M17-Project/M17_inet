@@ -27,7 +27,7 @@ The stream mode encoding combines the LSF with the payload to produce an all-in-
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313720 (“M17 ”)
 | StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
 | LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in section *2.5.1 Link Setup Data*  of the [Air Interface specification](https://spec.m17project.org/)
-| FN             | 16 bits  | Frame number, exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
+| FN             |  2 bytes | 2 byte (16 bit) frame number, exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
 | Payload        | 16 bytes | 16 bytes (128 bits) of Stream data, exactly as would be transmitted in the STREAM portion of an RF stream frame as defined in section *2.8 Stream Mode*  of the [Air Interface specification](https://spec.m17project.org/)
 | CRC16          | 2 bytes  | CRC for the entire packet, as defined in section *2.6 CRC* of the [Air Interface specification](https://spec.m17project.org/)
 
