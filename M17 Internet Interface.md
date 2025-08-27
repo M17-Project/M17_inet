@@ -26,10 +26,10 @@ The stream mode encoding combines the LSF with the payload to produce an all-in-
 |----------------|----------|--------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313720 (“M17 ”)
 | StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
-| LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in section 2.5.1
-| FN             | 16 bits  | Frame number exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
-| Payload        | 16 bytes | Payload (exactly as would be transmitted in an RF stream frame) as defined in section 2.8
-| CRC16          | 2 bytes  | CRC for the entire packet, as defined in section 2.5.4
+| LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in section *2.5.1 Link Setup Data*  of the [Air Interface specification](https://spec.m17project.org/)
+| FN             | 16 bits  | Frame number, exactly as would be transmitted as an RF stream frame, including the last frame indicator at (FN & 0x8000)
+| Payload        | 16 bytes | 16 bytes (128 bits) of Stream data, exactly as would be transmitted in the STREAM portion of an RF stream frame as defined in section *2.8 Stream Mode*  of the [Air Interface specification](https://spec.m17project.org/)
+| CRC16          | 2 bytes  | CRC for the entire packet, as defined in section *2.6 CRC* of the [Air Interface specification](https://spec.m17project.org/)
 
 ### Packet Mode IP Packet
 
@@ -37,7 +37,7 @@ The stream mode encoding combines the LSF with the payload to produce an all-in-
 |----------------|----------|--------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313750 (“M17P”)
 | LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in section 2.5.2
-| Payload        | variable | The payload includes a type specifer, the user data, and a CRC (exactly as would be transmitted in an RF packet frame) as defined in section 2.9
+| Payload        | variable | The payload includes a type specifier, the user data, and a CRC, as described in section *3.3.2 Packet Data* of the [Air Interface specification](https://spec.m17project.org/)
 
 The Payload CRC is computed from the type specifer and the user data. The size of a payload
 must be at least 4, but no more than 825 bytes. Payload includes a one (to four) byte type
