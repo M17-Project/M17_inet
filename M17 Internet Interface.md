@@ -1,4 +1,11 @@
+---
+subtitle: Draft Specification
+author: M17 Project Contributors
+---
+
 # M17 Internet Interface
+
+## Introduction
 
 Digital modes are commonly networked together through linked repeaters using IP networking.
 For commercial protocols like DMR, this is meant for linking metropolitan and state networks
@@ -25,7 +32,7 @@ Section references in the packet descriptions in this section refer to [M17 Part
 The stream mode encoding combines the LSF with the payload to produce an all-in-one 54 byte packet. Within a stream, the LSF data will be identical within superframes. This allows late joiners to open a packet stream upon the receipt of any packet. A superframe takes 6 packets for a total of 326 bytes.
 
 | Field          | Size     | Description              |
-|----------------|----------|--------------------------|
+|:---------------|:---------|:-------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313720 (“M17 ”)
 | StreamID (SID) | 2 bytes  | Random bits, changed for each PTT or stream, but consistent from frame to frame within a stream
 | LSD            | 28 bytes | The Link Setup Data (DST, SRC, TYPE, META field) as defined in section *2.5.1 Link Setup Data*  of the [Air Interface specification](https://spec.m17project.org/)
@@ -36,7 +43,7 @@ The stream mode encoding combines the LSF with the payload to produce an all-in-
 ### Packet Mode IP Packet
 
 | Field          | Size     | Description              |
-|----------------|----------|--------------------------|
+|:---------------|:---------|:-------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313750 (“M17P”)
 | LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in section 2.5.2
 | Payload        | variable | The payload includes a type specifier, the user data, and a CRC, as described in section *3.3.2 Packet Data* of the [Air Interface specification](https://spec.m17project.org/)
@@ -68,7 +75,7 @@ There are three different connection packets.
 A regular client can receive and transmit data to a reflector.
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “CONN”
 | 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 | 10    | Module to connect to - single ASCII byte A-Z
@@ -98,7 +105,7 @@ There are two `ACKN` packets.
 #### 1. A 4-byte packet is sent from a reflector to a normal, or listen-only client:
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “ACKN”
 
 #### 2. A 37-byte packet is sent from a reflector to another reflector:
@@ -116,7 +123,7 @@ Once the acknowledgement is received, the connection is established.
 A 4-byte `NACK` is used for refusing a connection request.
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “NACK”
 
 `NACK` packets can be sent from a reflector to the requesting node for several reasons:
@@ -127,6 +134,7 @@ A 4-byte `NACK` is used for refusing a connection request.
 ### Keep-alive packets
 
 Keep-alive packets should be sent every 3 seconds and serve two purposes:
+
 1. Inform a target that this node is still alive.
 2. Keeps a UDP connection open on the target's firewall.
 
@@ -135,14 +143,14 @@ If a keep-alive has not been received for at least 30 seconds, it should be assu
 #### A 10-byte `PING` packet is only sent by a reflector to either an interlinked reflector, or to a client:
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “PING”
 | 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 
 #### A 10-byte `PONG` packet is sent from a regular or listen-only client to a reflector:
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “PONG”
 | 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 
@@ -157,7 +165,7 @@ Note that the reflector-reflector interconnect, sometimes called *peer linking*,
 #### A 10-byte `DISC` packet is send by a node to initiate a disconnect from a target:
 
 | Bytes | Purpose
-|-------|----------------------
+|:------|:---------------------|
 | 0..3  | Magic - ASCII “DISC”
 | 4..9  | 6-byte ‘From’ callsign encoded as per Address Encoding
 
@@ -180,6 +188,7 @@ The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledge
 #### Legacy *vs* non-legacy reflectors and their differences
 
 Be aware that there are two different kinds of reflectors:
+
 1. Legacy reflector are all *urfd* reflectors as well as any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data.
 2. Any *mrefd* reflector with a version number greater or equal to 1.0.0, will forward both stream data and packet data from any client on any particular node to all nodes connected to that same module, except if the data is packet mode data and if that node is an interlinked, legacy reflector.
 

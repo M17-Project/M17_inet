@@ -1,0 +1,11 @@
+toc: true
+toc-depth: 3
+papersize: a4
+margin:
+  x: 2.5cm
+  y: 2.5cm
+fontsize: 11pt
+mainfont: PT Serif
+codefont: PT Mono
+section-numbering: "1.1.1"
+page-numbering: "1"
