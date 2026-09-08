@@ -11,13 +11,13 @@ Digital modes are commonly networked together through linked repeaters using IP 
 
 ### Purpose
 
-This part of the specification is where M17 over-the-air engineering is translated to Internet Protocol (IP) capabilities that M17 users want. In the spirit of true Open-Source innovation, M17 developers are encouraged to document their M17 contributions here so that their M17 programs and tools can be use by other developers and entire M17 ecosystem can be used and enjoyed by all M17 users.
+This part of the specification is where M17 over-the-air engineering is translated to Internet Protocol (IP) capabilities that M17 users want. In the spirit of true Open-Source innovation, M17 developers are encouraged to document their M17 contributions here so that their M17 programs and tools can be used by other developers and the entire M17 ecosystem can be used and enjoyed by all M17 users.
 
 
 ### Where to get involved
 
 1. Casual discussion or simple questions on any M17 Specification related topic from anyone can be started on the #m17-specification channel of the  [M17 Discord](https://discord.com/).
-1. More serious discussion that warrants a permanent record should take place by either rasing an issue on [this repo](https://github.com/M17-Project/M17_inet), or posting a message to the [M17-Users group.io](https://groups.io/g/M17-Users/topics) website.
+1. More serious discussion that warrants a permanent record should take place by either raising an issue on [this repo](https://github.com/M17-Project/M17_inet), or posting a message to the [M17-Users groups.io](https://groups.io/g/M17-Users/topics) website.
 1. Developers can submit a pull request (PR) to [this repo](https://github.com/M17-Project/M17_inet) to add information about their M17 application(s). They only need to supply the information in a new `##` Chapter in the `M17 Internet Interface.md` file. If they want to make sure the PDF is rendered properly, instructions for making the PDF are in the `README.md` file.
 1. Even skilled M17 users can submit a PR if they already have an account on github.com and see a problem with either specification document and know how to fix it. Many have done so already.
 
@@ -168,7 +168,7 @@ Note that the reflector-reflector interconnect, sometimes called *peer linking*,
 
 ### Disconnecting from an established connection
 
-#### A 10-byte `DISC` packet is send by a node to initiate a disconnect from a target
+#### A 10-byte `DISC` packet is sent by a node to initiate a disconnect from a target
 
 | Bytes | Description
 |:-----:|:---------------------|
@@ -195,7 +195,7 @@ The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledge
 
 Currently, there are two different kinds of reflector capabilities:
 
-1. Legacy reflector any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflector, but evolution of *urfd* is possible.
+1. Legacy reflector any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflectors, but evolution of *urfd* is possible.
 1. Any *mrefd* reflector with a version number greater or equal to 1.0.0, will forward both stream data and packet data from any client on any particular node to all nodes connected to that same module, except if the data is packet mode data and if that node is an interlinked, legacy reflector.
 
 Importantly, legacy reflectors will only forward stream data if the destination in the packet is addressed to the module to which it is linked. For example, the destination address must decode to `"M17-XYZ m"` or `"URFXYZ  m"`, where `m` is an appropriate module letter, A-Z. In both cases, please note that these destinations fill the maximum width of an M17 callsign, there are two spaces before the module in the *urfd* address! Further, legacy reflectors will readdress the destination address to be the encoded callsign of the client receiving the data. Whenever a reflector modifies a packet, any CRCs affected by that modification will be recalculated.
