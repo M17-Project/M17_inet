@@ -1,9 +1,9 @@
 ---
-subtitle: Draft Specification
+subtitle: Part II - Internet Interface (Draft)
 author: M17 Project Contributors
 ---
 
-# M17 Internet Interface
+# M17 Protocol Specification
 
 ## Introduction
 
