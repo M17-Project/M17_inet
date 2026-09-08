@@ -9,18 +9,7 @@ author: M17 Project Contributors
 
 Digital modes are commonly networked together through linked repeaters using IP networking. For commercial protocols like DMR, this is meant for linking metropolitan and state networks together and allows for easy interoperability between radio users. Amateur Radio uses this capability for creating global communications networks for all imaginable purposes, and makes ‘working the world’ with an HT possible.
 
-### Purpose
-
-This part of the specification is where M17 over-the-air engineering is translated to Internet Protocol (IP) capabilities that M17 users want. In the spirit of true Open-Source innovation, M17 developers are encouraged to document their M17 contributions here so that their M17 programs and tools can be used by other developers and the entire M17 ecosystem can be used and enjoyed by all M17 users.
-
-
-### Where to get involved
-
-1. Casual discussion or simple questions on any M17 Specification related topic from anyone can be started on the #m17-specification channel of the  [M17 Discord](https://discord.com/).
-1. More serious discussion that warrants a permanent record should take place by either raising an issue on [this repo](https://github.com/M17-Project/M17_inet), or posting a message to the [M17-Users groups.io](https://groups.io/g/M17-Users/topics) website.
-1. Developers can submit a pull request (PR) to [this repo](https://github.com/M17-Project/M17_inet) to add information about their M17 application(s). They only need to supply the information in a new `##` Chapter in the `M17 Internet Interface.md` file. If they want to make sure the PDF is rendered properly, instructions for making the PDF are in the `README.md` file.
-1. Even skilled M17 users can submit a PR if they already have an account on github.com and see a problem with either specification document and know how to fix it. Many have done so already.
-
+M17 is designed with this use in mind, and has native IP framing to support it. In competing radio protocols, a repeater or some other RF to IP bridge is required for linking, leading to the use of hot-spots (tiny simplex RF bridges).
 
 ## M17 Data Packets
 
@@ -195,16 +184,16 @@ The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledge
 
 Currently, there are two different kinds of reflector capabilities:
 
-1. Legacy reflector any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflectors, but evolution of *urfd* is possible.
+1. Legacy reflectors any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflectors, but evolution of *urfd* is possible.
 1. Any *mrefd* reflector with a version number greater or equal to 1.0.0, will forward both stream data and packet data from any client on any particular node to all nodes connected to that same module, except if the data is packet mode data and if that node is an interlinked, legacy reflector.
 
-Importantly, legacy reflectors will only forward stream data if the destination in the packet is addressed to the module to which it is linked. For example, the destination address must decode to `"M17-XYZ m"` or `"URFXYZ  m"`, where `m` is an appropriate module letter, A-Z. In both cases, please note that these destinations fill the maximum width of an M17 callsign, there are two spaces before the module in the *urfd* address! Further, legacy reflectors will readdress the destination address to be the encoded callsign of the client receiving the data. Whenever a reflector modifies a packet, any CRCs affected by that modification will be recalculated.
+Importantly, legacy reflectors will only forward stream data if the destination in the packet is addressed to the module to which it is linked. For example, the decoded destination address must have a reflector designation left justified in the 9-byte field and the module letter, A-Z at the ninth position. In both cases, please note that these destinations fill the maximum width of an M17 callsign, so that is one space separating "M17-XYZ" and the module letter, and there are two spaces separating "URFXYZ" and the module letter! Further, legacy reflectors will readdress the destination address to be the encoded callsign of the client receiving the data. Whenever a reflector modifies a packet, any CRCs affected by that modification will be recalculated.
 
 In general, non-legacy reflectors will forward any packet data without modification, with the sole exception that if the destination field looks like a legacy type destination, it will be changed to the BROADCAST address, 0xffffff, and the CRC will be recalculated upon forwarding.
 
 #### Enforcing the "one hop" policy by appending a byte
 
-It is important to note that interlinking methods both *urfd* and *mrefd* are based on [*xlxd*](https://github.com/LX3JL/xlxd) and enforce a "one hop policy" for any incoming packet from a regular client. Fundamentally that means that any packet received from an interlinked reflector will not be forwarded to any other reflector. Therefore any number of reflectors that share a channel must be interlinked to all reflectors in that same group. That's the only way any client can hear every other client on that interlinked module.
+It is important to note that interlinking methods both in *urfd* and *mrefd* are based on [*xlxd*](https://github.com/LX3JL/xlxd) and enforce a "one hop policy" for any incoming packet from a regular client. Fundamentally that means that any packet received from an interlinked reflector will not be forwarded to any other reflector. Therefore any number of reflectors that share a channel must be interlinked to all reflectors in that same group. That's the only way any client can hear every other client on that interlinked module.
 
 To help assign whether an incoming packet was from a connected client or an interlinked reflector, an addition byte was added at the end of the stream packet. so if an incoming packet was 55 bytes, the last byte was stripped off and that packet was only forwarded to regular or listen-only clients. It didn't matter what was in that appended byte, but it is always set to a non-zero value. Since the actual packet was not modified, the CRC is not modified.
 
