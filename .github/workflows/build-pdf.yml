@@ -26,7 +26,7 @@ jobs:
           sudo dpkg -i /tmp/pandoc.deb
 
       - name: Install typst
-        uses: typst-community/setup-typst@v4
+        uses: typst-community/setup-typst@v5
 
       - name: Build PDF
         run: make pdf
