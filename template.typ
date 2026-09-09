@@ -30,6 +30,7 @@ $endif$
   codefont: ("PT Mono",),
   sectionnumbering: "1.1.1",
   pagenumbering: "1",
+  linkcolor: none,
   doc,
 ) = {
   set page(
@@ -40,6 +41,16 @@ $endif$
   set text(lang: lang, region: region, font: font, size: fontsize)
   set par(justify: true)
   set heading(numbering: sectionnumbering)
+  // Color links so they are recognizable without hovering. Only links with
+  // string destinations (external URLs) are colored, leaving internal
+  // references such as TOC entries in body text color.
+  show link: it => {
+    if linkcolor != none and type(it.dest) == str {
+      text(fill: rgb("#" + linkcolor), it)
+    } else {
+      it
+    }
+  }
   show raw: set text(font: codefont, size: 0.9 * fontsize)
   show raw.where(block: true): it => block(
     fill: rgb("#f2f2eb"),
@@ -166,6 +177,9 @@ $if(section-numbering)$
 $endif$
 $if(page-numbering)$
   pagenumbering: "$page-numbering$",
+$endif$
+$if(linkcolor)$
+  linkcolor: "$linkcolor$",
 $endif$
   doc,
 )

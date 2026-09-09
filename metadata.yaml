@@ -9,3 +9,5 @@ mainfont: PT Serif
 codefont: PT Mono
 section-numbering: "1.1.1"
 page-numbering: "1"
+# hex RGB, no leading "#"
+linkcolor: "0645ad"
