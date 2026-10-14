@@ -13,17 +13,17 @@ M17 is designed with this use in mind, and has native IP framing to support it. 
 
 ## M17 Data Packets
 
-All M17 Data Packets have a 4 character MAGIC field beginning with the characters `M17`. For forward compatibility, reflector implementers may choose to forward all packets with MAGIC beginning with those three characters. Clients should use the MAGIC value to recognize packets they understand and ignore those don't. This allows implementors to experiment with new packet types. For now there is no mechanism to avoid collisions in new MAGIC values. Therefore, implementors should announce to the community their intent to experiment with a new packet type/MAGIC value. If the experiment is successful, they should request a change to this specification to standardize the new packet type.
+All M17 Data Packets have a 4 character MAGIC field beginning with the characters `M17`. For forward compatibility, reflector implementers may choose to forward all packets with MAGIC beginning with those three characters. Clients should use the MAGIC value to recognize packets they understand and ignore those they don't. This allows implementors to experiment with new packet types. For now there is no mechanism to avoid collisions in new MAGIC values. Therefore, implementors should announce to the community their intent to experiment with a new packet type/MAGIC value. If the experiment is successful, they should request a change to this specification to standardize the new packet type.
 
 In all cases, data in these packets are big endian, consistent with other IP protocols. Packet components are not padded to any specific word size and are arranged sequentially.
 
-Relaying packets over an IP network is the preferred method of connecting M17 users together. This provide a one-to-many connection where one transmitting node on an IP network is sending data to many other receiving nodes on that same network. It is possible to build relay stations that can handle either Stream or Packet Mode data, or both. These relay appliances can have a number of different channels and they can also be interlinked so that very large groups of hams can share information.
+Relaying packets over an IP network is the preferred method of connecting M17 users together. This provides a one-to-many connection where one transmitting node on an IP network is sending data to many other receiving nodes on that same network. It is possible to build relay stations that can handle either Stream or Packet Mode data, or both. These relay appliances can have a number of different channels and they can also be interlinked so that very large groups of hams can share information.
 
 Section references in the packet descriptions in this section refer to [M17 Part I - Air interface](https://spec.m17project.org/).
 
 ### Stream Mode Packets
 
-The stream mode encoding combines the LSF with the payload to produce an all-in-one 54 byte packet. Within a stream, the LSF data will be identical within superframes. This allows late joiners to open a packet stream upon the receipt of any packet. A superframe takes 6 packets for a total of 326 bytes.
+The stream mode encoding combines the LSF with the payload to produce an all-in-one 54 byte packet. Within a stream, the LSF data will be identical within superframes. This allows late joiners to open a packet stream upon the receipt of any packet. A superframe takes 6 packets for a total of 324 bytes.
 
 | Field | Size | Description              |
 |:-----:|:----:|:-------------------------|
@@ -47,7 +47,7 @@ must be at least 4, but no more than 825 bytes. Payload includes a one (to four)
 specifier, user data and a two byte CRC. Packet integrity is validated by the MAGIC value, the
 LSF CRC and the Payload CRC.
 
-## Packet used for Reflectors
+## Packets used for Reflectors
 
 Existing UDP relay systems, also called “reflectors”, use a few different types of control packets which are used to connect and disconnect and do other functions. These control packets are identified by their magic:
 
@@ -108,7 +108,7 @@ There are two `ACKN` packets.
 |:------:|:--------------------------------------------------------
 | 0..3   | Magic - ASCII “ACKN”
 | 4..9   | 6-byte ‘From’ reflector designation encoded as per Address Encoding
-| 10..36 | List of Module that are interlinked, A-Z, padded with NULL bytes.
+| 10..36 | List of Modules that are interlinked, A-Z, padded with NULL bytes.
 
 Once the acknowledgement is received, the connection is established.
 
@@ -153,7 +153,7 @@ Any packet received from a connected client will reset that client's time-out ti
 
 For a while now, through *mrefd* release version 1.1.2 there has been a bug that will effectively allow `PING` packets to act as a `PONG` packet and will reset a client's timeout timer. This form of keep-alive is deprecated and will no longer work in a future release of *mrefd*.
 
-Note that the reflector-reflector interconnect, sometimes called *peer linking*, is symmetric in design and execution. The connection must be specified on both ends identically, both ends initiate a `CONN` and make an appropriate response with `ACKN` or `NANK`, and both reflectors use `PING` as keep-alive packets.
+Note that the reflector-reflector interconnect, sometimes called *peer linking*, is symmetric in design and execution. The connection must be specified on both ends identically, both ends initiate a `CONN` and make an appropriate response with `ACKN` or `NACK`, and both reflectors use `PING` as keep-alive packets.
 
 ### Disconnecting from an established connection
 
@@ -176,7 +176,7 @@ If the request is from a client, it might also be because the user controlling t
 |:-----:|----------------------
 | 0..3  | Magic - ASCII “DISC”
 
-The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledges that the disconnect is completed. A well designed client initiates a disconnect and waits for acknowledgement, if acknowledgement was not received and the client continues receiving `PING` packets, then it can assume it's disconnect packet was not delivered. That is possible for any UDP packet, so it can keep sending disconnect initiation packets until a 4-byte `DISC` is received.
+The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledges that the disconnect is completed. A well designed client initiates a disconnect and waits for acknowledgement, if acknowledgement was not received and the client continues receiving `PING` packets, then it can assume its disconnect packet was not delivered. That is possible for any UDP packet, so it can keep sending disconnect initiation packets until a 4-byte `DISC` is received.
 
 ### Stream and packet mode data passed between reflectors
 
@@ -184,17 +184,17 @@ The 10-byte `DISC` initiates the disconnect, while the 4-byte `DISC` acknowledge
 
 Currently, there are two different kinds of reflector capabilities:
 
-1. Legacy reflectors any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflectors, but evolution of *urfd* is possible.
-1. Any *mrefd* reflector with a version number greater or equal to 1.0.0, will forward both stream data and packet data from any client on any particular node to all nodes connected to that same module, except if the data is packet mode data and if that node is an interlinked, legacy reflector.
+1. Legacy reflectors are any *mrefd* reflector with a version number less than 1.0.0. Legacy reflectors **do not** forward any packet mode data. All known *urfd* reflectors behave as legacy reflectors, but evolution of *urfd* is possible.
+1. Any *mrefd* reflector with a version number greater than or equal to 1.0.0, will forward both stream data and packet data from any client on any particular node to all nodes connected to that same module, except if the data is packet mode data and if that node is an interlinked, legacy reflector.
 
 Importantly, legacy reflectors will only forward stream data if the destination in the packet is addressed to the module to which it is linked. For example, the decoded destination address must have a reflector designation left justified in the 9-byte field and the module letter, A-Z at the ninth position. In both cases, please note that these destinations fill the maximum width of an M17 callsign, so that is one space separating "M17-XYZ" and the module letter, and there are two spaces separating "URFXYZ" and the module letter! Further, legacy reflectors will readdress the destination address to be the encoded callsign of the client receiving the data. Whenever a reflector modifies a packet, any CRCs affected by that modification will be recalculated.
 
-In general, non-legacy reflectors will forward any packet data without modification, with the sole exception that if the destination field looks like a legacy type destination, it will be changed to the BROADCAST address, 0xffffff, and the CRC will be recalculated upon forwarding.
+In general, non-legacy reflectors will forward any packet data without modification, with the sole exception that if the destination field looks like a legacy type destination, it will be changed to the BROADCAST address, 0xFFFFFFFFFFFF, and the CRC will be recalculated upon forwarding.
 
 #### Enforcing the "one hop" policy by appending a byte
 
 It is important to note that interlinking methods both in *urfd* and *mrefd* are based on [*xlxd*](https://github.com/LX3JL/xlxd) and enforce a "one hop policy" for any incoming packet from a regular client. Fundamentally that means that any packet received from an interlinked reflector will not be forwarded to any other reflector. Therefore any number of reflectors that share a channel must be interlinked to all reflectors in that same group. That's the only way any client can hear every other client on that interlinked module.
 
-To help assign whether an incoming packet was from a connected client or an interlinked reflector, an addition byte was added at the end of the stream packet. so if an incoming packet was 55 bytes, the last byte was stripped off and that packet was only forwarded to regular or listen-only clients. It didn't matter what was in that appended byte, but it is always set to a non-zero value. Since the actual packet was not modified, the CRC is not modified.
+To help assign whether an incoming packet was from a connected client or an interlinked reflector, an additional byte was added at the end of the stream packet. so if an incoming packet was 55 bytes, the last byte was stripped off and that packet was only forwarded to regular or listen-only clients. It didn't matter what was in that appended byte, but it is always set to a non-zero value. Since the actual packet was not modified, the CRC is not modified.
 
-Non-legacy *mrefd* reflectors do the same thing. Regardless of whether the data is stream data or packet data, packets sent to another reflector have an addition byte appended at the end. Stream data becomes 55 bytes, while n-byte packet data become n+1 bytes long when sent between reflectors. But this time the added byte is the module of the client that originated the data. This helps the reflector route the data to the correct clients because with non-legacy reflectors, anything can be in the destination address.
+Non-legacy *mrefd* reflectors do the same thing. Regardless of whether the data is stream data or packet data, packets sent to another reflector have an additional byte appended at the end. Stream data becomes 55 bytes, while n-byte packet data become n+1 bytes long when sent between reflectors. But this time the added byte is the module of the client that originated the data. This helps the reflector route the data to the correct clients because with non-legacy reflectors, anything can be in the destination address.
