@@ -74,6 +74,14 @@ $endif$
   )
   show table.cell.where(y: 0): strong
 
+  // Let tables flow across a page break instead of jumping whole to the
+  // next page and leaving their introduction behind; the header row repeats.
+  show figure.where(kind: table): set block(breakable: true)
+  set table.cell(breakable: false)  // ...but never split a single row
+
+  // Keep ranges such as "A-Z" on one line.
+  show "A-Z": box
+
   // Level-1 headings behave like book-class chapters: new page, large type.
   show heading.where(level: 1): it => {
     pagebreak(weak: true)
@@ -84,11 +92,11 @@ $endif$
   }
   show heading.where(level: 2): it => {
     set text(size: 14.4pt)
-    block(above: 1.4em, below: 0.9em, it)
+    block(above: 1.4em, below: 0.9em, sticky: true, it)
   }
   show heading.where(level: 3): it => {
     set text(size: 12pt)
-    block(above: 1.3em, below: 0.8em, it)
+    block(above: 1.3em, below: 0.8em, sticky: true, it)
   }
 
   // Title page, following the main spec's raggedleft layout.

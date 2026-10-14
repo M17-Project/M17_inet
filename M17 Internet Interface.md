@@ -39,7 +39,7 @@ The stream mode encoding combines the LSF with the payload to produce an all-in-
 | Field | Size | Description              |
 |:-----:|:----:|:-------------------------|
 | MAGIC          | 4 bytes  | Magic bytes 0x4d313750 (“M17P”)
-| LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in section 2.5.2
+| LSF            | 30 bytes | The Link Setup Frame (DST, SRC, TYPE, META field, CRC) as defined in section *2.5.2 Link Setup Frame* of the [Air Interface specification](https://spec.m17project.org/)
 | Payload        | variable | The payload includes a type specifier, the user data, and a CRC, as described in section *3.3.2 Packet Data* of the [Air Interface specification](https://spec.m17project.org/)
 
 The Payload CRC is computed from the type specifier and the user data. The size of a payload
