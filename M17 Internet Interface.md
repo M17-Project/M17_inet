@@ -19,7 +19,7 @@ In all cases, data in these packets are big endian, consistent with other IP pro
 
 Relaying packets over an IP network is the preferred method of connecting M17 users together. This provides a one-to-many connection where one transmitting node on an IP network is sending data to many other receiving nodes on that same network. It is possible to build relay stations that can handle either Stream or Packet Mode data, or both. These relay appliances can have a number of different channels and they can also be interlinked so that very large groups of hams can share information.
 
-Section references in the packet descriptions in this section refer to [M17 Part I - Air interface](https://spec.m17project.org/).
+Section references in this document refer to [M17 Part I - Air interface](https://spec.m17project.org/), version 2.0.9. Callsigns and other addresses described as "encoded as per Address Encoding" are 6-byte values encoded as defined in *Appendix A Address Encoding* of that document.
 
 ### Stream Mode Packets
 
@@ -47,6 +47,8 @@ must be at least 4, but no more than 825 bytes. Payload includes a one (to four)
 specifier, user data and a two byte CRC. Packet integrity is validated by the MAGIC value, the
 LSF CRC and the Payload CRC.
 
+Although the Air Interface specification allows a packet with no user data (a 3-byte payload), such a packet would be 37 bytes long on the IP network, the same size as the reflector-to-reflector `CONN` and `ACKN` packets described below. Reflectors distinguish packet types by their length, so a Packet Mode IP Packet must carry at least one byte of user data, making the whole packet at least 38 bytes long.
+
 ## Packets used for Reflectors
 
 Existing UDP relay systems, also called “reflectors”, use a few different types of control packets which are used to connect and disconnect and do other functions. These control packets are identified by their magic:
@@ -59,6 +61,8 @@ Existing UDP relay systems, also called “reflectors”, use a few different ty
 * `DISC` - Disconnect (client->reflector or reflector->client)
 
 These control packets are described below.
+
+All packets described in this document are carried over UDP, using either IPv4 or IPv6. Reflectors listen on UDP port 17000 by default, but the port can be configured, so clients and interlinked reflectors should allow a different port to be specified.
 
 ### Connection Packets, `CONN` and `LSTN`
 
@@ -124,16 +128,17 @@ A 4-byte `NACK` is used for refusing a connection request.
 
 * The request specifies a module that doesn't exist.
 * The request has been blocked by the GateKeeper.
+* A listen-only client (`LSTN`) requests an encrypted module, and the reflector is not configured to allow listen-only clients on encrypted modules.
 * In the case of a reflector interlink request, the target can send a `NACK` if the request is not identically configured on its side.
 
 ### Keep-alive packets
 
-Keep-alive packets should be sent every 3 seconds and serve two purposes:
+A reflector sends a `PING` every 3 seconds to each connected client and interlinked reflector. A client replies to each `PING` with a `PONG`, and may also send `PONG` packets on its own timer, at least every 10 seconds. Keep-alive packets serve two purposes:
 
 1. Inform a target that this node is still alive.
 1. Keeps a UDP connection open on the target's firewall.
 
-If a keep-alive has not been received for at least 30 seconds, it should be assumed that the node is dead and should be disconnected.
+If nothing has been received from the other end for at least 30 seconds, it should be assumed that the node is dead and should be disconnected. This applies to both sides: a reflector drops a silent client, and a client treats the link as lost when it stops receiving `PING` packets.
 
 #### A 10-byte `PING` packet is only sent by a reflector to either an interlinked reflector, or to a client
 
@@ -151,7 +156,7 @@ If a keep-alive has not been received for at least 30 seconds, it should be assu
 
 Any packet received from a connected client will reset that client's time-out timer, so `PONG` packets don't have to be sent during a transmission to the reflector.
 
-For a while now, through *mrefd* release version 1.1.2 there has been a bug that will effectively allow `PING` packets to act as a `PONG` packet and will reset a client's timeout timer. This form of keep-alive is deprecated and will no longer work in a future release of *mrefd*.
+Clients must use `PONG` as their keep-alive. Some reflectors, including current releases of *mrefd*, also accept a `PING` from a client as a keep-alive. This behavior is deprecated, and clients must not rely on it.
 
 Note that the reflector-reflector interconnect, sometimes called *peer linking*, is symmetric in design and execution. The connection must be specified on both ends identically, both ends initiate a `CONN` and make an appropriate response with `ACKN` or `NACK`, and both reflectors use `PING` as keep-alive packets.
 
@@ -166,7 +171,7 @@ Note that the reflector-reflector interconnect, sometimes called *peer linking*,
 
 This can be initiated by any node when it is shutting down. 
 
-If the request is from a reflector, the receiving node can assume the sending reflector is going down for maintenance and it can, after an appropriate time, try to reconnect.
+If the request is from a reflector, the receiving node can assume the sending reflector is going down for maintenance and it can, after an appropriate time, try to reconnect. A client does not need to acknowledge a `DISC` sent by a reflector.
 
 However it is also possible that the disconnection was initiated because a defined interlink to a reflector was removed.
 
